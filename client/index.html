@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>chatterbox</title>
+    <link rel="stylesheet" href="styles/styles.css">
+  </head>
+  <body>
+    <div id="main">
+      <h1>chatterbox</h1>
+      <form action="#" id="message-form">
+        <select name="chat" id="chat-room-select">
+        </select>
+
+        <label for="user-name">User Name</label>
+        <input type="text" id="user-name">
+
+        <label for="message">Message</label>
+        <input type="text" id="message">
+        <button id="send-message">Send Message</button>
+
+        <label for="new-chatroom">Current Chatroom</label>
+        <input type="text" id="new-chatroom" value="lobby">
+
+        <img class="spinner" src="images/spiffygif_46x46.gif" alt="">
+      </form>
+      <div id="feed"></div>
+    </div>
+    <!-- dependencies -->
+    <script src="bower_components/jquery/jquery.min.js"></script>
+    <script src="bower_components/underscore/underscore-min.js"></script>
+
+    <!-- your scripts -->
+    <script src="scripts/app.js"></script>
+    <script>
+
+    $(function(){
+      app.init({
+        container: $('#feed')
+      });
+    })
+
+    </script>
+  </body>
+</html>
