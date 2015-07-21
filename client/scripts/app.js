@@ -13,7 +13,8 @@ $(function() {
   var $newChatRoom = $('#new-chatroom');
   var $message = $('#message');
   var $sendMessage = $('#send-message');
-  var server = 'http://127.0.0.1:3000/classes/messages';
+  var getUrl = 'http://127.0.0.1:3000/classes/messages';
+  var postUrl = 'http://127.0.0.1:3000/send';
 
   function initFeed(messages) {
     var frag = $(document.createDocumentFragment());
@@ -21,7 +22,7 @@ $(function() {
     $messageContainer.html('');
 
     _.each(messages, function(message) {
-      if(_.indexOf(cachedMessages, message.createdAt) == -1) {
+      if(_.indexOf(cachedMessages, message.createdAt) === -1) {
         cachedMessages.push(message.createdAt);
       }
       if( message.roomname === $chatRoomSelector.val() ) {
@@ -139,7 +140,7 @@ $(function() {
     $spinner.show();
 
     $.ajax({
-      url: server,
+      url: postUrl,
       type: 'POST',
       data: JSON.stringify(message),
       contentType: 'application/json',
@@ -156,14 +157,14 @@ $(function() {
 
   function fetch() {
     $.ajax({
-      url: server,
+      url: getUrl,
       type: 'GET',
       data: {order: '-createdAt'},
       contentType: 'application/json',
       success: function(data) {
         clearInterval(timer);
         timer = setInterval(fetch,5000);
-        displayMessages( JSON.parse(data) );
+        displayMessages(data);
         $spinner.fadeOut();
       },
       error: function (data) {
@@ -173,6 +174,7 @@ $(function() {
   };
 
   function displayMessages(data) {
+
     buildChatRooms(data.results);
 
     if(!cachedMessages.length) {
@@ -187,11 +189,7 @@ $(function() {
   };
 
   app = {
-    server: server,
-    init: init,
-    send: send,
-    fetch: fetch,
-    displayMessages: displayMessages
+    init: init
   };
 
 });
