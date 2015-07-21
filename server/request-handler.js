@@ -18,56 +18,59 @@ var url = require('url');
 
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
+  var headers = defaultCorsHeaders;
+  var parsedUrl = url.parse(request.url);
+  var data = '';
 
-  var getFileContents = function(url) {
-    fs.readFile(url, function(err, content){
-      if (err) {console.log('error in index call');}
+  var getFileContents = function(url,contentType) {
+    fs.readFile(url, function(err, content) {
+      headers['Content-Type'] = contentType;
+      if (err) {
+        response.writeHead(404, headers);
+        response.end('404');
+      }
+      // response.writeHead(200, headers);
       response.end(content);
     });
   }
 
   var writeMessages = function(messData){
     messData = JSON.parse(messData);
+
     var oldData = '';
+
     fs.readFile('messages.json', function(err, content){
-      if (err) {console.log("ack!")}
+      if (err) {console.log("error in writeMessages")}
       oldData = JSON.parse(content);
 
       messData.objectId = oldData.currentId++;
       messData.createdAt = new Date();
 
       oldData.results.unshift(messData);
+
       fs.writeFile('messages.json', JSON.stringify(oldData), function (err) {
         if (err) {console.log("wheee!")};
+        response.end(JSON.stringify(oldData));
       });
+
     });
   }
 
-  //
-  // Documentation for both request and response can be found in the HTTP section at
-  // http://nodejs.org/documentation/api/
-
-  // Do some basic logging.
-  //
   console.log("Serving request type " + request.method + " for url " + request.url);
 
-  // The outgoing status.
-  var statusCode = 200;
-
   // See the note below about CORS headers.
-  var headers = defaultCorsHeaders;
-  var parsedUrl = url.parse(request.url);
-  var data = '';
 
-  // Tell the client we are sending them plain text.
-  //
-  // You will need to change this if you are sending something
-  // other than plain text, like JSON or HTML.
+  if ( request.url === "/" ) {
+    request.url = '../client/index.html';
+  } else {
+    request.url = '../client' + request.url;
+  }
+
+  var headerType = path.extname(request.url).substr(1);
 
   if (parsedUrl.pathname === '/classes/messages') {//?  /
     if (request.method === 'GET') {
-      headers['Content-Type'] = 'application/json';
-      getFileContents('messages.json');
+      getFileContents('messages.json','application/json');
     } else if (request.method === 'POST') {
       request.on('data', function(chunk){
         data += chunk;
@@ -79,35 +82,15 @@ var requestHandler = function(request, response) {
     return;
   }
 
-
-  if ( request.url === "/" ) {
-    request.url = '../client/index.html';
-  } else {
-    request.url = '../client/' + request.url;
-  }
-
-  var headerType = path.extname(request.url).substr(1);
-
-  headers['Content-Type'] = 'text/' + headerType;
-
-
-
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
-  response.writeHead(statusCode, headers);
 
-  getFileContents(request.url);
-
+  getFileContents(request.url,'text/' + headerType);
 
 
 
-  // Make sure to always call response.end() - Node may not send
-  // anything back to the client until you do. The string you pass to
-  // response.end() will be the body of the response - i.e. what shows
-  // up in the browser.
-  //
-  // Calling .end "flushes" the response's internal buffer, forcing
-  // node to actually send all the data over to the client.
+
+  // Make sure to always call response.end() -
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
