@@ -16,6 +16,8 @@ var fs = require('fs');
 var path = require('path');
 var url = require('url');
 
+var messagesFile = path.join(__dirname,'messages.json');
+
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
   var headers = defaultCorsHeaders;
@@ -28,8 +30,9 @@ var requestHandler = function(request, response) {
       if (err) {
         response.writeHead(404, headers);
         response.end('404');
+        return;
       }
-      // response.writeHead(200, headers);
+      response.writeHead(200, headers);
       response.end(content);
     });
   }
@@ -39,7 +42,7 @@ var requestHandler = function(request, response) {
 
     var oldData = '';
 
-    fs.readFile('messages.json', function(err, content){
+    fs.readFile(messagesFile, function(err, content){
       if (err) {console.log("error in writeMessages")}
       oldData = JSON.parse(content);
 
@@ -48,8 +51,9 @@ var requestHandler = function(request, response) {
 
       oldData.results.unshift(messData);
 
-      fs.writeFile('messages.json', JSON.stringify(oldData), function (err) {
-        if (err) {console.log("wheee!")};
+      fs.writeFile(messagesFile, JSON.stringify(oldData), function (err) {
+        if (err) {console.log("writeFile err!")};
+        response.writeHead(201, headers)
         response.end(JSON.stringify(oldData));
       });
 
@@ -70,7 +74,7 @@ var requestHandler = function(request, response) {
 
   if (parsedUrl.pathname === '/classes/messages') {//?  /
     if (request.method === 'GET') {
-      getFileContents('messages.json','application/json');
+      getFileContents(messagesFile,'application/json');
     } else if (request.method === 'POST') {
       request.on('data', function(chunk){
         data += chunk;
@@ -86,8 +90,6 @@ var requestHandler = function(request, response) {
   // which includes the status and all headers.
 
   getFileContents(request.url,'text/' + headerType);
-
-
 
 
   // Make sure to always call response.end() -
