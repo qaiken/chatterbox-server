@@ -1,7 +1,6 @@
 var fs = require('fs');
 var path = require('path');
 var url = require('url');
-
 var defaultCorsHeaders = {
   "access-control-allow-origin": "*",
   "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
@@ -9,7 +8,19 @@ var defaultCorsHeaders = {
   "access-control-max-age": 10 // Seconds.
 };
 
-var messagesFile = 'messages.json';
+var messagesFile = path.join(__dirname,'messages.json');
+
+var collectData = function(request,cb) {
+  var data = '';
+
+  request.on('data', function(chunk) {
+    data += chunk;
+  });
+  
+  request.on('end', function() {
+    cb(data);
+  });
+};
 
 var getFileContents = function(request,response) {
   var contentType, headerType;
@@ -75,6 +86,7 @@ var writeMessages = function(request,response,messageData) {
 };
 
 var requestHandler = function(request, response) {
+
   request.url = '../client' + request.url;
 
   if ( request.url === '../client/' ) {
@@ -88,14 +100,8 @@ var requestHandler = function(request, response) {
   }
 
   if( request.method === 'POST' ) {
-    var messageData = '';
-
-    request.on('data', function(chunk) {
-      messageData += chunk;
-    });
-    
-    request.on('end', function() {
-      writeMessages(request,response,messageData);
+    collectData(request, function(data) {
+      writeMessages(request,response,data);
     });
   }
 };
