@@ -44,9 +44,10 @@ var getFileContents = function(request,response) {
     contentType = 'text/plain';
   }
 
-  response.setHeader("Content-Type",contentType);
-
   fs.readFile(request.url, function(err, content) {
+    var headers = defaultCorsHeaders;
+    headers['Content-Type'] = contentType;
+    
     if (err) {
       response.writeHead(404, defaultCorsHeaders);
       response.end('404');
