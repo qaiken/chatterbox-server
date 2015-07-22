@@ -12,7 +12,7 @@ function waitForThen(test, cb) {
 }
 
 describe('Node Server Request Listener Function', function() {
-  it('Should answer GET requests for /classes/room with a 200 status code', function(done) {
+  it('Should answer GET requests for /classes/messages with a 200 status code', function(done) {
     // This is a fake server request. Normally, the server would provide this,
     // but we want to test our function's behavior totally independent of the server code
     var req = new stubs.request('/classes/messages', 'GET');

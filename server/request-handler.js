@@ -19,6 +19,9 @@ var url = require('url');
 var messagesFile = path.join(__dirname,'messages.json');
 
 var requestHandler = function(request, response) {
+
+  console.log(request.url);
+
   // Request and Response come from node's http module.
   var headers = defaultCorsHeaders;
   var parsedUrl = url.parse(request.url);
